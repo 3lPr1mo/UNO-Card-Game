@@ -4,6 +4,102 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SingUpActivity">
+    tools:context=".SingUpActivity"
+    android:background="@drawable/gears_login_wallpaper">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cgf_locust_resistance"
+        android:text="Sing Up"
+        android:textSize="60sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cgf_locust_resistance"
+        android:text="Sing Up"
+        android:textSize="58sp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="200dp"
+        android:orientation="vertical"
+        android:paddingStart="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="0dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username:"
+            android:textColor="@color/white" />
+
+        <EditText
+            android:id="@+id/username_singup_edt"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp"
+            android:hint="XxJuanxX"
+            android:textColor="@color/light_gray"
+            android:textColorHint="@color/dark_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Email:"
+            android:textColor="@color/white" />
+
+        <EditText
+            android:id="@+id/email_singup_edt"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp"
+            android:hint="example@example.com"
+            android:textColor="@color/light_gray"
+            android:textColorHint="@color/dark_gray" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Password:"
+            android:textColor="@color/white" />
+
+        <EditText
+            android:id="@+id/password_singup_edt"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp"
+            android:hint="**********"
+            android:inputType="textPassword"
+            android:textColor="@color/light_gray"
+            android:textColorHint="@color/dark_gray" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/register_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:text="Register"
+        android:backgroundTint="@color/dark_red"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
