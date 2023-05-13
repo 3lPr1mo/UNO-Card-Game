@@ -10,6 +10,6 @@ class User {
     constructor(name: String?, email: String?, uid: String?){
         this.name = name
         this.email = email
-        this.uid = email
+        this.uid = uid
     }
 }
