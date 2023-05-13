@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1077306965701",
+    "firebase_url": "https://uno-card-game-4aa8d-default-rtdb.firebaseio.com",
+    "project_id": "uno-card-game-4aa8d",
+    "storage_bucket": "uno-card-game-4aa8d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1077306965701:android:bbcf197d7d7313d35afaac",
+        "android_client_info": {
+          "package_name": "com.example.uno_card_game"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1077306965701-pk89eiui1hlg21c2vu264q4p8lq6oue6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD86-hm1Yz53Dep0F75WQUBFd_Zr3TtRqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1077306965701-pk89eiui1hlg21c2vu264q4p8lq6oue6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
