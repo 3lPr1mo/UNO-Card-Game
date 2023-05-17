@@ -3,6 +3,8 @@ package com.example.uno_card_game
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -24,10 +26,10 @@ class GameActivity : AppCompatActivity() {
     private lateinit var binding: ActivityGameBinding
 
     //Cards
-    private lateinit var userCards: MutableList<Card>
+    private lateinit var userCards: MutableMap<Int,Card>
     private lateinit var dock: MutableList<Card>
-    private lateinit var playedCards: MutableList<Card>
-    private lateinit var imageButtonCards: MutableList<ImageButton>
+    private var playedCard: Card? = null
+    private lateinit var userImageButtonCards: MutableList<ImageButton>
     private lateinit var allCards: MutableList<MutableList<StorageReference>>
     private lateinit var blueCards: MutableList<StorageReference>
     private lateinit var redCards: MutableList<StorageReference>
@@ -53,9 +55,9 @@ class GameActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //Variables declaration
-        userCards = mutableListOf()
+        userCards = mutableMapOf()
         dock = mutableListOf()
-
+        userImageButtonCards = mutableListOf()
         //Firebase room
         sendRoom = receiveUid + sendUid
         receiveRoom = sendUid + receiveUid
@@ -104,6 +106,14 @@ class GameActivity : AppCompatActivity() {
 
     }
 
+    /*private userHasWon(): Boolean{
+        if(userCards.isEmpty()){
+            return true;
+        }else{
+            return
+        }
+    }*/
+
     private fun showDialog(title: String, msg: String){
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
@@ -121,50 +131,52 @@ class GameActivity : AppCompatActivity() {
         Log.d("allCards", allCards.toString())
         for(i in 0 until 7){
             val typeCard = allCards[Random.nextInt(0, 5)] //red, yellow, green, blue or power
+            val id = View.generateViewId()
             Log.d("typeCard", typeCard.toString())
             if(typeCard != powerCards){ //it's a normal card
-                var randomNumber = Random.nextInt(0,9)  // Card number
+                val randomNumber = Random.nextInt(0,9)  // Card number
                 var card: NormalCard? = null
                 if(typeCard[randomNumber].path.contains("azul")){
                     card = NormalCard(randomNumber, "azul", typeCard[randomNumber].path, sendUid)
-                    addCardToView(card, typeCard[randomNumber].path){}
+                    addCardToView(card, typeCard[randomNumber].path, id){}
                 }
                 if(typeCard[randomNumber].path.contains("red")){
                     card = NormalCard(randomNumber, "red", typeCard[randomNumber].path, sendUid)
-                    addCardToView(card, typeCard[randomNumber].path){}
+                    addCardToView(card, typeCard[randomNumber].path, id){}
                 }
                 if(typeCard[randomNumber].path.contains("yellow")){
                     card = NormalCard(randomNumber, "yellow", typeCard[randomNumber].path, sendUid)
-                    addCardToView(card, typeCard[randomNumber].path){}
+                    addCardToView(card, typeCard[randomNumber].path, id){}
                 }
                 if(typeCard[randomNumber].path.contains("green")){
                     card = NormalCard(randomNumber, "green", typeCard[randomNumber].path, sendUid)
-                    addCardToView(card, typeCard[randomNumber].path){}
+                    addCardToView(card, typeCard[randomNumber].path, id){}
                 }
-                userCards.add(card as Card)
+                userCards[id] = card as Card
 
             }else{
-                var randomNumber = Random.nextInt(0,3)
+                val randomNumber = Random.nextInt(0,3)
                 var card: WildCard? = null
                 if(typeCard[randomNumber].path.contains("+2")){
                     card = WildCard("+2", typeCard[randomNumber].path, sendUid)
-                    addCardToView(card, typeCard[randomNumber].path){}
+                    addCardToView(card, typeCard[randomNumber].path, id){}
                 }
                 if(typeCard[randomNumber].path.contains("+4")){
                     card = WildCard("+4", typeCard[randomNumber].path, sendUid)
-                    addCardToView(card, typeCard[randomNumber].path){}
+                    addCardToView(card, typeCard[randomNumber].path, id){}
                 }
                 if(typeCard[randomNumber].path.contains("change")){
                     card = WildCard("change-color", typeCard[randomNumber].path, sendUid)
-                    addCardToView(card, typeCard[randomNumber].path){}
+                    addCardToView(card, typeCard[randomNumber].path, id){}
+                    //addCardToDatabase(card, typeCard[randomNumber].path, )
                 }
-                userCards.add(card as Card)
+                userCards[id] = card as Card
             }
 
         }
     }
 
-    private fun addCardToView(card: Card, url: String, callback: () -> Unit){
+    private fun addCardToView(card: Card, url: String, id: Int, callback: () -> Unit){
 
         val imageRef = storage.reference.child(url)
 
@@ -177,6 +189,7 @@ class GameActivity : AppCompatActivity() {
 
         imageRef.downloadUrl.addOnSuccessListener { uri ->
             val imageURL = uri.toString()
+            card.imgUrl = imageURL //Setting the valid URL
 
             //Create an ImageButton instance
             val imageButton = ImageButton(this)
@@ -191,8 +204,67 @@ class GameActivity : AppCompatActivity() {
                 .load(imageURL)
                 .into(imageButton)
 
+            // Image ID
+            imageButton.id = id
+
+            userImageButtonCards.add(imageButton)
             binding.cardsLayout.addView(imageButton)
+            binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString() // Reload the opponnet cards left
+
+            //Setting card click listener
+            imageButton.setOnClickListener {
+                sendCardToUser(imageButton)
+                binding.cardView.setImageDrawable(imageButton.drawable)
+                playedCard = userCards[imageButton.id] // Save the last card played
+                sendLastCardPlayedToDatabase(sendRoom!!, imageButton) // Sending the last played card
+                val parentLayout: ViewGroup = imageButton.parent as ViewGroup
+                parentLayout.removeView(imageButton)
+                userCards.remove(imageButton.id)
+                binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString()
+            }
             checkOperationsCompleted()
+        }
+    }
+
+    private fun sendCardToUser(imageButton: ImageButton){
+        //Getting the card
+        val card: Card? = userCards[imageButton.id]
+        //Validate that can send the card to the user
+        if(canSendToUSer(card)){
+            sendRoom?.let {
+                sendCardToDatabase(it, imageButton)
+            }
+        }
+    }
+
+    private fun canSendToUSer(card: Card?): Boolean{
+        //Validate that the user can send the Card to the opponent
+        return if(playedCard == null){
+            true
+        }else{
+            if(card is NormalCard){
+                card.canSend(card)
+            }else{
+                card!!.canSend(card)
+            }
+        }
+    }
+
+    private fun sendLastCardPlayedToDatabase(sendRoom: String, imageButton: ImageButton){
+        val sendLastCardReference = Dbref.child("games").child("lastCard").push()
+        val lastCard: Card? = playedCard
+        // Save the last card in database
+        sendLastCardReference.setValue(lastCard)
+    }
+
+    private fun sendCardToDatabase(sendRoom: String, imageButton: ImageButton){
+        val sendCardReference = Dbref.child("games").child(sendRoom).child("cards").push()
+        val senderCard: Card? = userCards[imageButton.id]
+        sendCardReference.setValue(senderCard).addOnSuccessListener {
+            receiveRoom?.let {
+                Dbref.child("games").child(it).child("cards").push()
+                    .setValue(senderCard)
+            }
         }
     }
 

@@ -10,4 +10,8 @@ open class Card {
         this.imgUrl = imgUrl
         this.sendUid = sendUid
     }
+
+    open fun canSend(card: Card): Boolean {
+        return true
+    }
 }
