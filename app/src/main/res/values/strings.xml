@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">UNO-Card-Game</string>
+    <string name="change_color_rule">La carta de cambiar color se puede poner sin importar el color de la ultima carta juagada cambiando el color de las cartas a jugar</string>
+    <string name="wild_card_rule">Los comodines mas 2 y mas 4 indican cuantas cartas coge el oponente, aunque si el oponente pone algun comodin se van sumando las cartas a coger</string>
+    <string name="condition_rule">Si no posee la carta que cumpla con lo anterior, se le entregara una carta hasta que cumpla con la condicion</string>
+    <string name="put_card_rule">Se reparten 7 cartas a ambos jugadores.\nSe deben poner las cartas que sean del mismo color o misma enumaracion</string>
 </resources>

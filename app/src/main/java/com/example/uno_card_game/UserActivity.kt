@@ -1,10 +1,12 @@
 package com.example.uno_card_game
 
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -20,6 +22,10 @@ class UserActivity : AppCompatActivity() {
     private lateinit var userList: ArrayList<User>
     private lateinit var adapter: UserAdapter
 
+    //PopUp
+    private lateinit var popUp: Dialog
+    private lateinit var exitPopUp: Button
+
     // Firebase
     private lateinit var fAuth: FirebaseAuth
     private lateinit var Dbref: DatabaseReference
@@ -27,6 +33,16 @@ class UserActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user)
+
+        //PopUp
+        popUp = Dialog(this)
+        popUp.setContentView(R.layout.popup_rules)
+        exitPopUp = popUp.findViewById(R.id.Accpet_btn)
+        popUp.show()
+
+        exitPopUp.setOnClickListener {
+            popUp.dismiss()
+        }
 
         fAuth = FirebaseAuth.getInstance()
         Dbref = FirebaseDatabase.getInstance().reference

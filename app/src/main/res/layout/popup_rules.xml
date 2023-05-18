@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="400dp"
+    android:layout_height="700dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:background="@drawable/popup_rules">
+
+    <LinearLayout
+        android:id="@+id/popup_linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/cgf_locust_resistance"
+            android:textColor="@color/light_red"
+            android:gravity="center"
+            android:textSize="40sp"
+            android:text="RULES"/>
+
+        <LinearLayout
+            android:layout_weight="0.5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_weight="0.3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/card7"
+                />
+            <TextView
+                android:layout_gravity="center"
+                android:layout_weight="0.7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cgf_locust_resistance"
+                android:textColor="@color/white"
+                android:text="@string/put_card_rule"
+                android:paddingEnd="10dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_weight="0.5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_weight="0.3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/card0"/>
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_weight="0.7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:fontFamily="@font/cgf_locust_resistance"
+                android:text="@string/condition_rule"
+                android:paddingEnd="10dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_weight="0.5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_weight="0.3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/card_plus4"/>
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_weight="0.7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:fontFamily="@font/cgf_locust_resistance"
+                android:text="@string/wild_card_rule"
+                android:paddingEnd="10dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_weight="0.5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_weight="0.3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/card_changecolor"/>
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_weight="0.7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:fontFamily="@font/cgf_locust_resistance"
+                android:text="@string/change_color_rule"
+                android:paddingEnd="10dp"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/Accpet_btn"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Aceptar"
+            android:backgroundTint="@color/light_red"
+            android:layout_marginBottom="20dp"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

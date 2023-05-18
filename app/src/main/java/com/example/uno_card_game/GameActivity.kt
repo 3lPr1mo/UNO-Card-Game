@@ -1,10 +1,12 @@
 package com.example.uno_card_game
 
+import android.app.Dialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -53,6 +55,7 @@ class GameActivity : AppCompatActivity() {
         val sendUid = FirebaseAuth.getInstance().currentUser?.uid
         supportActionBar?.hide()
         setContentView(binding.root)
+
 
         //Variables declaration
         userCards = mutableMapOf()
