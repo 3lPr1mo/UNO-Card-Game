@@ -18,6 +18,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlin.random.Random
@@ -45,6 +46,9 @@ class GameActivity : AppCompatActivity() {
     private var sendRoom: String? = null
     private var receiveRoom: String? = null
     private var lastSend: String? = null
+
+    //Winner username
+    private lateinit var winner: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,40 +86,62 @@ class GameActivity : AppCompatActivity() {
 
         //Adding data to firebase
         Dbref.child("rooms").child(sendRoom!!).child("cards")
-            .addChildEventListener(object : ChildEventListener{
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    TODO("Not yet implemented")
+            .addValueEventListener(object : ValueEventListener{
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    // Checking the turn
+                    if(lastSend != sendUid){
+                        binding.cardsLayout.visibility = View.VISIBLE
+                    }else{
+                        binding.cardsLayout.visibility = View.GONE
+                    }
                 }
 
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
+                override fun onCancelled(error: DatabaseError) {
                     if(!this@GameActivity.isDestroyed){
                         showDialog("Game Finished", "The Connection has been lost")
                     }
                 }
 
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-
             })
+
+        Dbref.child("rooms").child(sendRoom!!).child("cards").addChildEventListener(object : ChildEventListener{
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                if(userHasWon()){
+                    showDialog("Game Over", "$winner has WON")
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                if(!this@GameActivity.isDestroyed){
+                    showDialog("WON by W", "The opponent lost the connection, you lucky")
+                }
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
 
     }
 
-    /*private userHasWon(): Boolean{
-        if(userCards.isEmpty()){
-            return true;
+    private fun userHasWon(): Boolean{
+        return if(userCards.isEmpty()){
+            winner = "YOU"
+            true
         }else{
-            return
+            false
         }
-    }*/
+    }
 
     private fun showDialog(title: String, msg: String){
         val builder = AlertDialog.Builder(this)
