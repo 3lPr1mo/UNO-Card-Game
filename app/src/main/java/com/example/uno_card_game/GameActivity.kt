@@ -216,43 +216,106 @@ class GameActivity : AppCompatActivity() {
             callback()
         }
 
+        var imageButton: ImageButton = ImageButton(this)
+
         imageRef.downloadUrl.addOnSuccessListener { uri ->
             val imageURL = uri.toString()
             card.imgUrl = imageURL //Setting the valid URL
 
-            //Create an ImageButton instance
-            val imageButton = ImageButton(this)
-            imageButton.layoutParams = LinearLayout.LayoutParams(
-                resources.getDimensionPixelSize(R.dimen.image_width), // Ancho de la imagen
-                resources.getDimensionPixelSize(R.dimen.image_height)
-            )
-
-            //Load the image in the view with Glide
-            Log.d("imageURL", imageURL)
-            Glide.with(this)
-                .load(imageURL)
-                .into(imageButton)
-
-            // Image ID
-            imageButton.id = id
-
-            userImageButtonCards.add(imageButton)
-            binding.cardsLayout.addView(imageButton)
-            binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString() // Reload the opponnet cards left
-
-            //Setting card click listener
-            imageButton.setOnClickListener {
-                sendCardToUser(imageButton)
-                binding.cardView.setImageDrawable(imageButton.drawable)
-                playedCard = userCards[imageButton.id] // Save the last card played
-                sendLastCardPlayedToDatabase(sendRoom!!, imageButton) // Sending the last played card
-                val parentLayout: ViewGroup = imageButton.parent as ViewGroup
-                parentLayout.removeView(imageButton)
-                userCards.remove(imageButton.id)
-                binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString()
+            fun setImageButtonImage(){
+                //Create an ImageButton instance
+                //imageButton = ImageButton(this)
+                imageButton.layoutParams = LinearLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.image_width), // Ancho de la imagen
+                    resources.getDimensionPixelSize(R.dimen.image_height)
+                )
+                // Image ID
+                imageButton.id = id
+                //Load the image in the view with Glide
+                Log.d("imageURL", imageURL)
+                setImageGlide(imageURL, imageButton)
+                userImageButtonCards.add(imageButton)
+                binding.cardsLayout.addView(imageButton)
             }
-            checkOperationsCompleted()
+            setImageButtonImage()
+            binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString() // Reload the opponnet cards left
         }
+
+        imageButton.setOnClickListener {
+            sendCardToUser(imageButton)
+            Dbref.child("games")
+            /*imageRef.downloadUrl.addOnSuccessListener { uri ->
+                setImageToCardView(uri.toString())
+            }.addOnFailureListener {
+                Log.d("FireStorage", "Error to dowload the image to cardView")
+            }*/
+            //binding.cardView.setImageDrawable(imageButton.drawable)
+            playedCard = userCards[imageButton.id] // Save the last card played
+            sendLastCardPlayedToDatabase(sendRoom!!, imageButton) // Sending the last played card
+            val parentLayout: ViewGroup = imageButton.parent as ViewGroup
+            parentLayout.removeView(imageButton)
+            userCards.remove(imageButton.id)
+            //binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString()
+        }
+
+        Dbref.child("games").child(sendRoom!!).child("cards").child("lastCard")
+            .addValueEventListener(object : ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if(snapshot.exists()){
+                        for(nextSnapshot in snapshot.children){
+                            if(nextSnapshot.value is NormalCard){
+                                val cardToShow = nextSnapshot.getValue(NormalCard::class.java)
+                                setImageToCardView(cardToShow!!.imgUrl!!)
+                            }else{
+                                val cardToShow = nextSnapshot.getValue(WildCard::class.java)
+                                setImageToCardView(cardToShow!!.imgUrl!!)
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+
+        Dbref.child("games").child(receiveRoom!!).child("cards").child("lastCard")
+            .addValueEventListener(object : ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if(snapshot.exists()){
+                        for(nextSnapshot in snapshot.children){
+                            if(nextSnapshot.value is NormalCard){
+                                val cardToShow = nextSnapshot.getValue(NormalCard::class.java)
+                                setImageToCardView(cardToShow!!.imgUrl!!)
+                            }else{
+                                val cardToShow = nextSnapshot.getValue(WildCard::class.java)
+                                setImageToCardView(cardToShow!!.imgUrl!!)
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+
+        checkOperationsCompleted()
+
+    }
+
+    private fun setImageToCardView(uri: String){
+        Glide.with(this)
+            .load(uri)
+            .into(binding.cardView)
+    }
+
+    private fun setImageGlide(imageURL: String?, imageButton: ImageButton){
+        Glide.with(this)
+            .load(imageURL)
+            .into(imageButton)
     }
 
     private fun sendCardToUser(imageButton: ImageButton){
@@ -280,10 +343,15 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun sendLastCardPlayedToDatabase(sendRoom: String, imageButton: ImageButton){
-        val sendLastCardReference = Dbref.child("games").child("lastCard").push()
+        val sendLastCardReference = Dbref.child("games").child(sendRoom).child("lastCard").push()
         val lastCard: Card? = playedCard
         // Save the last card in database
-        sendLastCardReference.setValue(lastCard)
+        sendLastCardReference.setValue(lastCard).addOnSuccessListener {
+            receiveRoom?.let {
+                Dbref.child("games").child(it).child("cards").child("lastCard").push()
+                    .setValue(lastCard)
+            }
+        }
     }
 
     private fun sendCardToDatabase(sendRoom: String, imageButton: ImageButton){

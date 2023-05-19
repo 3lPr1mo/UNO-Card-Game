@@ -1,14 +1,20 @@
 package com.example.uno_card_game
 
-class NormalCard(var number: Int?, var color: String?, imgUrl: String?, sendUid: String?) : Card(imgUrl, sendUid) {
+class NormalCard : Card {
 
-    init {
-        super.imgUrl = imgUrl
-        super.sendUid = sendUid
+    var number: Int? = null
+    var color: String? = null
+
+    constructor() : super() {
     }
 
-    override fun canSend(card: Card): Boolean{
-        if(card is NormalCard){
+    constructor(number: Int?, color: String?, imgUrl: String?, sendUid: String?) : super(imgUrl, sendUid) {
+        this.number = number
+        this.color = color
+    }
+
+    override fun canSend(card: Card): Boolean {
+        if (card is NormalCard) {
             return this.color == card.color || this.number == card.number
         }
         return false
