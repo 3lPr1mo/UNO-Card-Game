@@ -16,27 +16,28 @@ class Rules {
     }
 
     //Eat cards to the user
-    fun eatCards(currentCard: Card, allCards: MutableList<MutableList<StorageReference>>, receiveUid: String): MutableList<Card>{
-        var eatingCards: MutableList<StorageReference>
-        var givingCards: MutableList<Card>? = null
+    fun eatCards(currentCard: Card, allCards: MutableList<MutableList<StorageReference>>, receiveUid: String): MutableList<Card> {
+        var eatingCards: MutableList<StorageReference> = mutableListOf()
+        var givingCards: MutableList<Card> = mutableListOf()
         if (currentCard is WildCard){
             if(currentCard.type.equals("+4")){
                 for(i in 0 until 4){
                     eatingCards = allCards[Random.nextInt(0,5)]
-                    givingCards?.add(randomCards(eatingCards, receiveUid))
+                    givingCards.add(randomCards(eatingCards, receiveUid, allCards))
                 }
             }else if(currentCard.type.equals("+2")){
                 for(i in 0 until 2){
                     eatingCards = allCards[Random.nextInt(0,5)]
-                    givingCards?.add(randomCards(eatingCards, receiveUid))
+                    givingCards.add(randomCards(eatingCards, receiveUid, allCards))
                 }
             }
         }
-        return givingCards!!
+        //CARDS LEFT: 7
+        return givingCards
     }
 
-    fun randomCards(typeCard: MutableList<StorageReference>, receiveUid: String): Card{
-        if(typeCard != typeCard[4]){ //it's a normal card
+    fun randomCards(typeCard: MutableList<StorageReference>, receiveUid: String, allCards: MutableList<MutableList<StorageReference>>): Card{
+        if(typeCard != allCards[4]){ //it's a normal card
             val randomNumber = Random.nextInt(0,9)  // Card number
             var card: NormalCard? = null
             if(typeCard[randomNumber].path.contains("azul")){

@@ -30,7 +30,7 @@ class GameActivity : AppCompatActivity() {
 
     //Cards
     private lateinit var userCards: MutableMap<Int,Card>
-    private lateinit var dock: MutableList<Card>
+    private lateinit var dock: Card
     private var playedCard: Card? = null
     private lateinit var userImageButtonCards: MutableList<ImageButton>
     private lateinit var allCards: MutableList<MutableList<StorageReference>>
@@ -64,7 +64,6 @@ class GameActivity : AppCompatActivity() {
 
         //Variables declaration
         userCards = mutableMapOf()
-        dock = mutableListOf()
         userImageButtonCards = mutableListOf()
         //Firebase room
         sendRoom = receiveUid + sendUid
@@ -208,7 +207,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun addCardToView(card: Card, url: String, id: Int, callback: () -> Unit){
 
-        val imageRef = storage.reference.child(url)
+        val imageRef = storage.reference.child(url!!)
 
 
         // Función auxiliar para comprobar si todas las operaciones se han completado
@@ -217,7 +216,7 @@ class GameActivity : AppCompatActivity() {
             callback()
         }
 
-        var imageButton: ImageButton = ImageButton(this)
+        val imageButton: ImageButton = ImageButton(this)
 
         imageRef.downloadUrl.addOnSuccessListener { uri ->
             val imageURL = uri.toString()
@@ -258,6 +257,15 @@ class GameActivity : AppCompatActivity() {
                 val parentLayout: ViewGroup = imageButton.parent as ViewGroup
                 parentLayout.removeView(imageButton)
                 userCards.remove(imageButton.id)
+            }else{
+                val eat: MutableList<Card> = rules.eatCards(userCards[imageButton.id]!!, allCards, sendRoom!!)
+                for(eats in eat){
+                    Log.d("eats", eats.imgUrl + eats.sendUid + eats.toString())
+                    addCardToView(eats, eats.imgUrl!!, View.generateViewId()){}
+                }
+                val parentLayout: ViewGroup = imageButton.parent as ViewGroup
+                parentLayout.removeView(imageButton)
+                userCards.remove(imageButton.id)
             }
             //binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString()
         }
@@ -270,9 +278,11 @@ class GameActivity : AppCompatActivity() {
                         for(nextSnapshot in snapshot.children){
                             if(nextSnapshot.value is NormalCard){
                                 val cardToShow = nextSnapshot.getValue(NormalCard::class.java)
+                                dock = cardToShow as Card
                                 setImageToCardView(cardToShow!!.imgUrl!!)
                             }else{
                                 val cardToShow = nextSnapshot.getValue(WildCard::class.java)
+                                dock = cardToShow as Card
                                 setImageToCardView(cardToShow!!.imgUrl!!)
                             }
                         }
@@ -312,6 +322,31 @@ class GameActivity : AppCompatActivity() {
 
     }
 
+    private fun sendWildCard(imageRef: StorageReference, card: Card, imageButton: ImageButton){
+
+        imageRef.downloadUrl.addOnSuccessListener { uri ->
+            val imageURL = uri.toString()
+            card.imgUrl = imageURL //Setting the valid URL
+
+            fun setImageButtonImage(){
+                //Create an ImageButton instance
+                //imageButton = ImageButton(this)
+                imageButton.layoutParams = LinearLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.image_width), // Ancho de la imagen
+                    resources.getDimensionPixelSize(R.dimen.image_height)
+                )
+                //Load the image in the view with Glide
+                Log.d("imageURL", imageURL)
+                setImageGlide(imageURL, imageButton)
+                userImageButtonCards.add(imageButton)
+                binding.cardsLayout.addView(imageButton)
+            }
+            setImageButtonImage()
+            binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString() // Reload the opponnet cards left
+        }
+
+    }
+
     private fun setImageToCardView(uri: String){
         Glide.with(this)
             .load(uri)
@@ -338,16 +373,13 @@ class GameActivity : AppCompatActivity() {
     private fun canSendToUSer(card: Card?): Boolean{
         //Validate that the user can send the Card to the opponent
         return if(playedCard == null){ //Is it the first card
-            Log.d("playedCard", playedCard.toString())
             true
-        }else{
-            if(card is NormalCard){
+        }else if(card is NormalCard){
                 Log.d("candSendTo", rules.cardVerification(card, playedCard!!).toString())
                 rules.cardVerification(card, playedCard!!)
                 //card.canSend(card)
-            }else{
-                card!!.canSend(card)
-            }
+        }else{// it is a wildcard
+            false
         }
     }
 
