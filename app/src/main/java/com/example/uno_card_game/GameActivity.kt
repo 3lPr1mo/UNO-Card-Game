@@ -39,6 +39,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var yellowCards: MutableList<StorageReference>
     private lateinit var greenCards: MutableList<StorageReference>
     private lateinit var powerCards: MutableList<StorageReference>
+    private var rules: Rules = Rules()
 
     //Firebase
     private lateinit var Dbref: DatabaseReference
@@ -243,21 +244,25 @@ class GameActivity : AppCompatActivity() {
 
         imageButton.setOnClickListener {
             sendCardToUser(imageButton)
-            Dbref.child("games")
+            //Dbref.child("games")
             /*imageRef.downloadUrl.addOnSuccessListener { uri ->
                 setImageToCardView(uri.toString())
             }.addOnFailureListener {
                 Log.d("FireStorage", "Error to dowload the image to cardView")
             }*/
             //binding.cardView.setImageDrawable(imageButton.drawable)
-            playedCard = userCards[imageButton.id] // Save the last card played
-            sendLastCardPlayedToDatabase(sendRoom!!, imageButton) // Sending the last played card
-            val parentLayout: ViewGroup = imageButton.parent as ViewGroup
-            parentLayout.removeView(imageButton)
-            userCards.remove(imageButton.id)
+            // Sending the last played card
+            if(canSendToUSer(userCards[imageButton.id])){
+                playedCard = userCards[imageButton.id] // Save the last card played
+                sendLastCardPlayedToDatabase(sendRoom!!, imageButton)
+                val parentLayout: ViewGroup = imageButton.parent as ViewGroup
+                parentLayout.removeView(imageButton)
+                userCards.remove(imageButton.id)
+            }
             //binding.cardsLeftTxt.text = "CARDS LEFT: " + userCards.size.toString()
         }
 
+        //Setting the lastCard in firebase to the sender cardView
         Dbref.child("games").child(sendRoom!!).child("cards").child("lastCard")
             .addValueEventListener(object : ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -280,6 +285,7 @@ class GameActivity : AppCompatActivity() {
 
             })
 
+        //Setting the lastCard in firebase to the receiver cardView
         Dbref.child("games").child(receiveRoom!!).child("cards").child("lastCard")
             .addValueEventListener(object : ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -331,11 +337,14 @@ class GameActivity : AppCompatActivity() {
 
     private fun canSendToUSer(card: Card?): Boolean{
         //Validate that the user can send the Card to the opponent
-        return if(playedCard == null){
+        return if(playedCard == null){ //Is it the first card
+            Log.d("playedCard", playedCard.toString())
             true
         }else{
             if(card is NormalCard){
-                card.canSend(card)
+                Log.d("candSendTo", rules.cardVerification(card, playedCard!!).toString())
+                rules.cardVerification(card, playedCard!!)
+                //card.canSend(card)
             }else{
                 card!!.canSend(card)
             }
